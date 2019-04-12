@@ -36,66 +36,69 @@ This are the instructions to configure Linux(ubuntu) server to deploy flask app 
 
 ## SSH, User and Security
 
-1. From terminal on your machine login remotely to your server '''\$ ssh -i ~/.ssh/LightsailDefaultKeyPair.pem ubuntu@YourServerIP'''
-2. Create new user _grader_ '''\$ sudo adduser grader'''
-3. Add _grader_ to sudoers '''\$ sudo nano /etc/sudoers.d/grader'''. Add '''grader ALL=(ALL:ALL) ALL'''. Save and exit.
-4. Create new key pair in the terminal. '''\$ ssh-keygen grader'''.
-5. Print, copy and save the public key '''\$ cat ~/.ssh/grader_key.pub'''
-6. Put the public key _public_key.pub_ to _authorized_keys_ and add the permission: '''$ sudo chmod 700 /home/grader/.ssh''' and '''$ sudo chmod 644 /home/grader/.ssh/authorized_keys'''
+1. From terminal on your machine login remotely to your server `\$ ssh -i ~/.ssh/LightsailDefaultKeyPair.pem ubuntu@YourServerIP`
+2. Create new user _grader_ `\$ sudo adduser grader`
+3. Add _grader_ to sudoers `\$ sudo nano /etc/sudoers.d/grader`. Add `grader ALL=(ALL:ALL) ALL`. Save and exit.
+4. Create new key pair in the terminal. `\$ ssh-keygen grader`.
+5. Print, copy and save the public key `\$ cat ~/.ssh/grader_key.pub`
+6. Put the public key _public_key.pub_ to _authorized_keys_ and add the permission: `$ sudo chmod 700 /home/grader/.ssh` and `$ sudo chmod 644 /home/grader/.ssh/authorized_keys`
 7. Change key-based authentication and change SSH port to 2200 and disab;e remote root login:
-   - '''\$ sudo nano /etc/ssh/sshd_config'''
+   - `\$ sudo nano /etc/ssh/sshd_config`
    - 'PasswordAuthentication', 'PermitRootLogin' -> 'no'
    - 'Port' -> '2200'
-   - Restart ssh service '''\$ sudo service ssh restart'''
-8. Config the timezone: '''\$ sudo dpkg-reconfigure tzdata'''
+   - Restart ssh service `\$ sudo service ssh restart`
+8. Config the timezone: `\$ sudo dpkg-reconfigure tzdata`
 
 ## Installation and updating
 
-1. '''\$ sudo apt-get update'''
-2. '''\$ sudo apt-get upgrade'''
+1. `\$ sudo apt-get update`
+2. `\$ sudo apt-get upgrade`
 
 ## Config Firewall
 
-1. '''\$ sudo ufw default deny incoming'''
-2. '''\$ sudo ufw default allow outgoing'''
-3. '''\$ sudo ufw allow 2200/tcp'''
-4. '''\$ sudo ufw allow 80/tcp'''
-5. '''\$ sudo ufw allow 123/udp'''
-6. '''\$ sudo ufw enable'''
+1. `\$ sudo ufw default deny incoming`
+2. `\$ sudo ufw default allow outgoing`
+3. `\$ sudo ufw allow 2200/tcp`
+4. `\$ sudo ufw allow 80/tcp`
+5. `\$ sudo ufw allow 123/udp`
+6. `\$ sudo ufw enable`
 
 ## Apache, Git, mod_wsgi
 
-1. '''\$ sudo apt-get install apache2'''
-2. Install mod_wsgi '''\$ sudo apt-get install libapache2-mod-wsgi python-dev'''
-3. Enable mod_wsgi '''\$ sudo a2enmod wsgi'''
-4. '''\$ sudo service apache2 start'''
-5. '''\$ sudo apt-get install git'''
+1. `\$ sudo apt-get install apache2`
+2. Install mod_wsgi `\$ sudo apt-get install libapache2-mod-wsgi python-dev`
+3. Enable mod_wsgi `\$ sudo a2enmod wsgi`
+4. `\$ sudo service apache2 start`
+5. `\$ sudo apt-get install git`
 
 ## Config Apache
 
-1.  Clone project from Github and change the owner: '''$ cd /var/www $ sudo mkdir catalog $ sudo chown -R grader:grader catalog $ cd catalog \$ git clone https://github.com/GithubRepoLink catalog'''
+1.  Clone project from Github and change the owner: `$ cd /var/www $ sudo mkdir catalog $ sudo chown -R grader:grader catalog $ cd catalog \$ git clone https://github.com/GithubRepoLink catalog`
 2.  Create catalog.wsgi file and edit it:
-    ''' import sys
+
+    ````import sys
     import logging
     logging.basicConfig(stream=sys.stderr)
     sys.path.insert(0, "/var/www/catalog/")
 
-        from catalog import app as application'''
+        from catalog import app as application```
+
+    ````
 
 3.  Rename application.py to init.py
 4.  Virtual Environment:
-    - Install and create '''sudo pip install virtualenv''' '''sudo virtualenv venv'''
-    - Activate and change permission '''source venv/bin/activate''' '''sudo chmod -R 777 venv'''
+    - Install and create `sudo pip install virtualenv` `sudo virtualenv venv`
+    - Activate and change permission `source venv/bin/activate` `sudo chmod -R 777 venv`
 5.  Install Flask and all dependecies:
-    - pip '''\$ sudo apt-get install python-pip'''
-    - Flask '''\$ pip install Flask'''
-    - '''sudo pip install httplib2 oauth2client sqlalchemy psycopg2 sqlalchemy_utils'''
+    - pip `\$ sudo apt-get install python-pip`
+    - Flask `\$ pip install Flask`
+    - `sudo pip install httplib2 oauth2client sqlalchemy psycopg2 sqlalchemy_utils`
 
 ## Config virtual host
 
-1. Edit/create catalog configuration file '''sudo nano /etc/apache2/sites-available/catalog.conf'''
+1. Edit/create catalog configuration file `sudo nano /etc/apache2/sites-available/catalog.conf`
 2. Paste/edit for your server:
-   '''<VirtualHost \*:80>
+   ````<VirtualHost *:80>
    ServerName YOURSERVNAME
    ServerAlias YOURSERVALIAS
    ServerAdmin YOUREMAIL
@@ -114,17 +117,18 @@ This are the instructions to configure Linux(ubuntu) server to deploy flask app 
    ErrorLog ${APACHE_LOG_DIR}/error.log
     LogLevel warn
     CustomLog ${APACHE_LOG_DIR}/access.log combined
-   </VirtualHost>'''
-3. Enable the virtual host: '''sudo a2ensite catalog'''
+   </VirtualHost>```
+   ````
+3. Enable the virtual host: `sudo a2ensite catalog`
 
 ## Install and config PostrgreSQL
 
-1. '''\$ sudo apt-get install libpq-dev python-dev'''
-2. '''\$ sudo apt-get install postgresql postgresql-contrib'''
-3. Connect '''\$ sudo -u postgres psql'''
-4. Create new user '''CREATE USER catalog WITH PASSWORD 'catalog';'''
-5. Grant permission to create DB '''ALTER USER catalog CREATEDB;'''
-6. Create DB '''REATE DATABASE catalog WITH OWNER catalog;'''
-7. Disconnect '''\q'''
+1. `\$ sudo apt-get install libpq-dev python-dev`
+2. `\$ sudo apt-get install postgresql postgresql-contrib`
+3. Connect `\$ sudo -u postgres psql`
+4. Create new user `CREATE USER catalog WITH PASSWORD 'catalog';`
+5. Grant permission to create DB `ALTER USER catalog CREATEDB;`
+6. Create DB `REATE DATABASE catalog WITH OWNER catalog;`
+7. Disconnect `\q`
 8. Edit db_setup.py and other neccissary py files :
-   '''create_engine('sqlite:///category.db')''' -> '''create_engine('postgresql://catalog:catalog@localhost/catalog')'''
+   `create_engine('sqlite:///category.db')` -> `create_engine('postgresql://catalog:catalog@localhost/catalog')`
